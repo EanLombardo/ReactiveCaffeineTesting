@@ -1,0 +1,15 @@
+group 'com.rxc'
+version '0.0.1WIP'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.6
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'io.reactivex:rxjava:1.0.14'
+    compile 'reactive-caffeine:reactive-caffeine:1.0.0'
+    compile 'junit:junit:4.11'
+}
