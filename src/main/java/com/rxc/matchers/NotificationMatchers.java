@@ -40,4 +40,11 @@ public class NotificationMatchers {
     public static Matcher<Notification> isError(final Class<? extends Throwable> errorClass){
         return isErrorThat(isA(errorClass));
     }
+
+    /**
+     * A matcher that matches onCompleted Notifications
+     */
+    public static Matcher<Notification> isCompletion(){
+        return new OnCompletedMatcher();
+    }
 }
