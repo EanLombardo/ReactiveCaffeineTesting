@@ -6,7 +6,7 @@ import org.hamcrest.Matcher;
 
 public class ThrowableMatchers {
 
-    public final Matcher<Throwable> hasMessageThat(final Matcher<String> stringMatcher){
+    public static Matcher<Throwable> hasMessageThat(final Matcher<String> stringMatcher){
        return new FeatureMatcher<Throwable, String>(stringMatcher,"message","message") {
            @Override
            protected String featureValueOf(Throwable actual) {
@@ -15,7 +15,7 @@ public class ThrowableMatchers {
        };
     }
 
-    public final Matcher<Throwable> hasCauseThat(final Matcher<Throwable> throwableMatcher){
+    public static Matcher<Throwable> hasCauseThat(final Matcher<Throwable> throwableMatcher){
         return new FeatureMatcher<Throwable, Throwable>(throwableMatcher,"cause","cause") {
             @Override
             protected Throwable featureValueOf(Throwable actual) {

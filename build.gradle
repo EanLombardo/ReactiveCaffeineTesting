@@ -3,7 +3,7 @@ version '0.0.1WIP'
 
 apply plugin: 'java'
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.7
 repositories {
     jcenter()
 }
