@@ -181,6 +181,22 @@ public class TestSubscriber<T> extends Subscriber<T>{
 
             return this;
         }
+
+        public AssertionChain ignoreUntilEvent(final Matcher<Notification> matcher, final int times){
+            int curr = 0;
+
+            while (curr < times){
+                if(iterator.hasNext()){
+                    if(matcher.matches(iterator.next())) {
+                        curr++;
+                    }
+                } else {
+                    fail(matcher,"There was no such event");
+                }
+            }
+
+            return this;
+        }
     }
 
 }

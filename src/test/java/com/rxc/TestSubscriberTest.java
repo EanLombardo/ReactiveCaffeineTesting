@@ -170,4 +170,42 @@ public class TestSubscriberTest {
                 .ignoreNextEvents(4)
                 .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))));
     }
+
+    @Test
+    public void assertionChain_ignoreUntil(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        testSubscriber.beginAssertionChain()
+                .ignoreUntilEvent(isValueThat(endsWith("spoon")),1)
+                .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))));
+    }
+
+    @Test
+    public void assertionChain_ignoreUntil_fails(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                testSubscriber.beginAssertionChain()
+                        .ignoreUntilEvent(isValueThat(endsWith("chicken")), 1);
+            }
+        }, hasMessageThat(containsString("There was no such event")));
+    }
 }
