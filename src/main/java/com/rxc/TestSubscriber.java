@@ -163,6 +163,24 @@ public class TestSubscriber<T> extends Subscriber<T>{
 
             return this;
         }
+
+        public AssertionChain ignoreNextEvent(){
+            if(iterator.hasNext()){
+                iterator.next();
+            }
+
+            return this;
+        }
+
+        public AssertionChain ignoreNextEvents(final int count){
+            int curr = 0;
+            while (curr < count && iterator.hasNext()){
+                iterator.next();
+                curr++;
+            }
+
+            return this;
+        }
     }
 
 }

@@ -8,8 +8,7 @@ import static com.rxc.MoreAssertions.assertTakesAtLeast;
 import static com.rxc.MoreAssertions.assertThrows;
 import static com.rxc.matchers.NotificationMatchers.*;
 import static com.rxc.matchers.ThrowableMatchers.hasMessageThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.*;
 
 public class TestSubscriberTest {
 
@@ -133,5 +132,42 @@ public class TestSubscriberTest {
                         .assertNextEvent(isValue("Glork"));
             }
         }, hasMessageThat(containsString("There were no remaining events")));
+    }
+
+    @Test
+    public void assertionChain_ignoreNextEvent(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        testSubscriber.beginAssertionChain()
+                .assertNextEvent(isValue("Glork"))
+                .ignoreNextEvent()
+                .assertNextEvent(isValueThat(startsWith("fo")))
+                .assertNextEvent(isValue("spoon"))
+                .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))));
+    }
+
+    @Test
+    public void assertionChain_ignoreNextEvents(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        testSubscriber.beginAssertionChain()
+                .ignoreNextEvents(4)
+                .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))));
     }
 }
