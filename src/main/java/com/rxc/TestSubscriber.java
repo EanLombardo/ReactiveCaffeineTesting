@@ -14,6 +14,11 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A {@link Subscriber} that records all events so that assertions can be made against them for testing purposes
+ * TestSubscriber is entirely thread safe and makes no assumptions about the {@link rx.Observable} contract
+ * @param <T> The type of values that will be emitted by the {@link rx.Observable}
+ */
 public class TestSubscriber<T> extends Subscriber<T>{
     private static final int DEFAULT_TIMEOUT = 5000;
 
@@ -95,6 +100,17 @@ public class TestSubscriber<T> extends Subscriber<T>{
         fail(expected.toString(),but,event);
     }
 
+    /**
+     * <p>Holds the current thread until the subscriber has received a certain number of events that match the given matcher</p>
+     * <p>This is useful for waiting until a {@link rx.Observable} is in a certain state before making assumptions against it's events</p>
+     * <p><b>Fails:</b> When the proper number of matching events aren't recorded before a timeout occurs</p>
+     *
+     * @param matcher The matcher used for checking the events
+     * @param times How many events need to be seen that match before the thread is released
+     * @param timeout How long to wait before timing out
+     * @param timeUnit The unit to be used for the timeout
+     * @throws InterruptedException When the thread is interrupted
+     */
     public void awaitEvent(final Matcher<Notification> matcher, final int times, final long timeout, final TimeUnit timeUnit) throws InterruptedException {
         synchronized (notifications){
             if(hasMatchingNotification(matcher)){
@@ -111,28 +127,70 @@ public class TestSubscriber<T> extends Subscriber<T>{
         }
     }
 
+    /**
+     * <p>Holds the current thread until the subscriber has received a certain number of events that match the given matcher</p>
+     * <p>This is useful for waiting until a {@link rx.Observable} is in a certain state before making assumptions against it's events</p>
+     * <p>The wait will timeout after {@value #DEFAULT_TIMEOUT}ms</p>
+     * <p><b>Fails:</b> When the proper number of matching events aren't recorded before a timeout occurs</p>
+     *
+     * @param matcher The matcher used for checking the events
+     * @param times How many events need to be seen that match before the thread is released
+     * @throws InterruptedException When the thread is interrupted
+     */
     public void awaitEvent(final Matcher<Notification> matcher, final int times) throws InterruptedException {
         awaitEvent(matcher,times,DEFAULT_TIMEOUT,TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * <p>Holds the current thread until the subscriber has received an events that match the given matcher</p>
+     * <p>This is useful for waiting until a {@link rx.Observable} is in a certain state before making assumptions against it's events</p>
+     * <p><b>Fails:</b> When a matching event isn't recorded before a timeout occurs</p>
+     *
+     * @param matcher The matcher used for checking the events
+     * @param timeout How long to wait before timing out
+     * @param timeUnit The unit to be used for the timeout
+     * @throws InterruptedException When the thread is interrupted
+     */
     public void awaitEvent(final Matcher<Notification> matcher,  final long timeout, final TimeUnit timeUnit) throws InterruptedException {
         awaitEvent(matcher,1,timeout,timeUnit);
     }
 
+    /**
+     * <p>Holds the current thread until the subscriber has received an events that match the given matcher</p>
+     * <p>This is useful for waiting until a {@link rx.Observable} is in a certain state before making assumptions against it's events</p>
+     * <p>The wait will timeout after {@value #DEFAULT_TIMEOUT}ms</p>
+     * <p><b>Fails:</b> When a matching event isn't recorded before a timeout occurs</p>
+     *
+     * @param matcher The matcher used for checking the events
+     * @throws InterruptedException When the thread is interrupted
+     *
+     */
     public void awaitEvent(final Matcher<Notification> matcher) throws InterruptedException {
         awaitEvent(matcher,1,DEFAULT_TIMEOUT,TimeUnit.MILLISECONDS);
     }
 
+    /**
+     * Begins a {@link AssertionChain} that will make assertions against all of the events that have been recorded
+     * @return The AssertionChain to make AssertionsAgainst
+     */
     public AssertionChain beginAssertionChain(){
         return new AssertionChain(notifications.iterator());
     }
 
+    /**
+     * Asserts that this Subscriber has received an event matching the given matcher
+     * @param matcher The matcher to check with
+     */
     public void assertHasEvent(final Matcher<Notification> matcher){
         if(!hasMatchingNotification(matcher)){
             fail(matcher,"There was no matching event in the event chain");
         }
     }
 
+    /**
+     * Asserts that this Subscriber has not received an event matching the given matcher
+     * @param matcher The matcher to check with
+     */
     public void assertDoesNotHaveEvent(final Matcher<Notification> matcher){
         for(final Notification<T> notification : notifications){
             if(matcher.matches(notification)){
@@ -173,6 +231,12 @@ public class TestSubscriber<T> extends Subscriber<T>{
         }
     }
 
+    /**
+     * <p>A fluent class used to walk the chain of events received by a {@link TestSubscriber} and make assertions against each event in the order received<</p>
+     * <p>AssertionChain does not make assertions against events as they come in, instead it asserts against the events received by the {@link TestSubscriber} when
+     * {@link TestSubscriber#beginAssertionChain()} was called. This means in multi threaded situations you will likely have to use {@link TestSubscriber#awaitEvent(Matcher)}
+     * to wait for the {@link TestSubscriber} to receive the events that you want to assert against.</p>
+     */
     public class AssertionChain {
 
         private Iterator<Notification<T>> iterator;
@@ -181,6 +245,12 @@ public class TestSubscriber<T> extends Subscriber<T>{
             this.iterator = iterator;
         }
 
+        /**
+         * <p>Asserts that the next event matches the given matcher</p>
+         * <p><b>Fails:</b> When the next event does not match, or when there is no next event</p>
+         * @param eventMatcher The matcher to check with
+         * @return the AssertionChain to continue to make assertions against
+         */
         public AssertionChain assertNextEvent(final Matcher<Notification> eventMatcher){
             if(iterator.hasNext()){
                 final Notification<T> event = iterator.next();
@@ -196,6 +266,11 @@ public class TestSubscriber<T> extends Subscriber<T>{
             return this;
         }
 
+        /**
+         * <p>Skips the next event in the recorded event chain</p>
+         * <p>This will not fail a test under any circumstances as this should eventually be followed by a assertNextEvent that would fail if there were no more events</p>
+         * @return the AssertionChain to continue to make assertions against
+         */
         public AssertionChain ignoreNextEvent(){
             if(iterator.hasNext()){
                 iterator.next();
@@ -204,6 +279,11 @@ public class TestSubscriber<T> extends Subscriber<T>{
             return this;
         }
 
+        /**
+         * <p>Skips a given amount of events in the recorded event chain</p>
+         * <p>This will not fail a test under any circumstances as this should eventually be followed by a assertNextEvent that would fail if there were no more events</p>
+         * @return the AssertionChain to continue to make assertions against
+         */
         public AssertionChain ignoreNextEvents(final int count){
             int curr = 0;
             while (curr < count && iterator.hasNext()){
@@ -214,6 +294,14 @@ public class TestSubscriber<T> extends Subscriber<T>{
             return this;
         }
 
+        /**
+         * <p>Walks through the event chain skipping events until the given number of events have been reached that match the given matcher</p>
+         * <p>This does skip the last event matched, meaning that the next event will be the event immediately after the last matching event</p>
+         * <p><b>Fails:</b> When all events have been checked but not enough matching events were found</p>
+         * @param matcher The matcher to check with
+         * @param times How many matching events to skip
+         * @return the AssertionChain to continue to make assertions against
+         */
         public AssertionChain ignoreUntilEvent(final Matcher<Notification> matcher, final int times){
             int curr = 0;
 
@@ -230,6 +318,13 @@ public class TestSubscriber<T> extends Subscriber<T>{
             return this;
         }
 
+        /**
+         * <p>Walks through the event chain skipping events until an event has been reached that matches the given matcher</p>
+         * <p>This does skip the event matched, meaning that the next event will be the event immediately after the matching event</p>
+         * <p><b>Fails:</b> When all events have been checked but not enough matching events were found</p>
+         * @param matcher The matcher to check with
+         * @return the AssertionChain to continue to make assertions against
+         */
         public AssertionChain ignoreUntilEvent(final Matcher<Notification> matcher){
             return ignoreUntilEvent(matcher,1);
         }
