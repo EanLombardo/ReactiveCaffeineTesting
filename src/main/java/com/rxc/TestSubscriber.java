@@ -8,6 +8,7 @@ import org.junit.Assert;
 import rx.Notification;
 import rx.Subscriber;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -57,22 +58,31 @@ public class TestSubscriber<T> extends Subscriber<T>{
         return false;
     }
 
-    private void describeEventChain(final Description description){
+    private void describeEventChain(final Description description, final Notification<T> event){
         for(final Notification<T> notification : notifications){
-            description.appendText("\n             ");
+            if(notification == event){
+                description.appendText("\n    -------> ");
+            } else {
+                description.appendText("\n             ");
+            }
             NotificationDescriber.describeNotification(notification,description);
         }
         description.appendText("\n");
     }
 
     private void fail(final SelfDescribing expected, final String but){
+        fail(expected,but,null);
+    }
+
+    private void fail(final SelfDescribing expected, final String but, final Notification<T> event){
         final Description description = new StringDescription();
-        description.appendText("\n   Expected: ")
+        description
+                .appendText("\n   Expected: ")
                 .appendDescriptionOf(expected)
                 .appendText("\n        but: ")
                 .appendText(but)
-                .appendText("\nEvent chain: ");
-        describeEventChain(description);
+                .appendText("\nevent chain: ");
+        describeEventChain(description, event);
 
         Assert.fail(description.toString());
     }
@@ -91,6 +101,10 @@ public class TestSubscriber<T> extends Subscriber<T>{
         if(currentWait.didTimeout()){
             fail(matcher,"Timed out waiting for event");
         }
+    }
+
+    public AssertionChain beginAssertionChain(){
+        return new AssertionChain(notifications.iterator());
     }
 
     public void assertHasEvent(final Matcher<Notification> matcher){
@@ -126,4 +140,29 @@ public class TestSubscriber<T> extends Subscriber<T>{
             return countDownLatch.getCount() != 0;
         }
     }
+
+    public class AssertionChain {
+
+        private Iterator<Notification<T>> iterator;
+
+        AssertionChain(final Iterator<Notification<T>> iterator){
+            this.iterator = iterator;
+        }
+
+        public AssertionChain assertNextEvent(final Matcher<Notification> eventMatcher){
+            if(iterator.hasNext()){
+                final Notification<T> event = iterator.next();
+                if(!eventMatcher.matches(event)){
+                    final Description description = new StringDescription();
+                    eventMatcher.describeMismatch(event,description);
+                    fail(eventMatcher,description.toString(),event);
+                }
+            } else {
+                fail(eventMatcher,"There were no remaining events");
+            }
+
+            return this;
+        }
+    }
+
 }

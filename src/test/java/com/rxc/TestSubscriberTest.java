@@ -6,15 +6,15 @@ import rx.schedulers.Schedulers;
 
 import static com.rxc.MoreAssertions.assertTakesAtLeast;
 import static com.rxc.MoreAssertions.assertThrows;
-import static com.rxc.matchers.NotificationMatchers.isCompletion;
-import static com.rxc.matchers.NotificationMatchers.isValue;
+import static com.rxc.matchers.NotificationMatchers.*;
 import static com.rxc.matchers.ThrowableMatchers.hasMessageThat;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.endsWith;
 
 public class TestSubscriberTest {
 
     @Test
-    public void hasEvent_matches() throws Exception {
+    public void hasEvent() throws Exception {
         final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
 
         Observable.just("hello").subscribe(testSubscriber);
@@ -68,5 +68,70 @@ public class TestSubscriberTest {
                 testSubscriber.awaitEvent(isValue("Glork"),1,5000);
             }
         },2500);
+    }
+
+    @Test
+    public void assertionChain_assertNextEvent(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+        .subscribe(testSubscriber);
+
+        testSubscriber.beginAssertionChain()
+                      .assertNextEvent(isValue("Glork"))
+                      .assertNextEvent(isValueThat(containsString("ork")))
+                      .assertNextEvent(isValueThat(endsWith("k")))
+                      .assertNextEvent(isValue("spoon"))
+                      .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))));
+    }
+
+    @Test
+    public void assertionChain_assertNextEvent_failsNotMatching(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                testSubscriber.beginAssertionChain()
+                        .assertNextEvent(isValue("Glork"))
+                        .assertNextEvent(isValueThat(containsString("ork")))
+                        .assertNextEvent(isValueThat(endsWith("k")))
+                        .assertNextEvent(isValue("fmoiefn"))
+                        .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))));
+            }
+        }, hasMessageThat(containsString("was onNext(\"spoon\")")));
+    }
+
+    @Test
+    public void assertionChain_assertNextEvent_failsOutOfEvents(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                testSubscriber.beginAssertionChain()
+                        .assertNextEvent(isValue("Glork"))
+                        .assertNextEvent(isErrorThat(hasMessageThat(containsString("no spoon"))))
+                        .assertNextEvent(isValue("Glork"));
+            }
+        }, hasMessageThat(containsString("There were no remaining events")));
     }
 }
