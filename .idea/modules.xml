@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ReactiveCaffeineTesting.iml" filepath="$PROJECT_DIR$/ReactiveCaffeineTesting.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ReactiveCaffeineTesting.iml" filepath="$PROJECT_DIR$/.idea/modules/ReactiveCaffeineTesting.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ReactiveCaffeineTesting_main.iml" filepath="$PROJECT_DIR$/.idea/modules/ReactiveCaffeineTesting_main.iml" group="ReactiveCaffeineTesting" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ReactiveCaffeineTesting_test.iml" filepath="$PROJECT_DIR$/.idea/modules/ReactiveCaffeineTesting_test.iml" group="ReactiveCaffeineTesting" />
     </modules>
   </component>
 </project>
