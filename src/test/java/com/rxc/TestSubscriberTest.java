@@ -4,6 +4,8 @@ import org.junit.Test;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.rxc.MoreAssertions.assertTakesAtLeast;
 import static com.rxc.MoreAssertions.assertThrows;
 import static com.rxc.matchers.NotificationMatchers.*;
@@ -44,7 +46,7 @@ public class TestSubscriberTest {
         assertThrows(new ThrowingRunnable() {
             @Override
             public void run() throws Throwable {
-                testSubscriber.awaitEvent(isCompletion(),1,5000);
+                testSubscriber.awaitEvent(isCompletion(),1,5000,TimeUnit.MILLISECONDS);
             }
         },hasMessageThat(containsString("Timed out waiting for event")));
     }
@@ -64,7 +66,7 @@ public class TestSubscriberTest {
         assertTakesAtLeast(new ThrowingRunnable() {
             @Override
             public void run() throws Throwable {
-                testSubscriber.awaitEvent(isValue("Glork"),1,5000);
+                testSubscriber.awaitEvent(isValue("Glork"),1,5000, TimeUnit.MILLISECONDS);
             }
         },2500);
     }

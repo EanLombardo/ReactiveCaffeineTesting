@@ -15,6 +15,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class TestSubscriber<T> extends Subscriber<T>{
+    private static final int DEFAULT_TIMEOUT = 5000;
+
     private final List<Notification<T>> notifications = new LinkedList<>();
 
     private AwaitContext currentWait = null;
@@ -87,13 +89,13 @@ public class TestSubscriber<T> extends Subscriber<T>{
         Assert.fail(description.toString());
     }
 
-    public void awaitEvent(final Matcher<Notification> matcher, final int times, final long timeout) throws InterruptedException {
+    public void awaitEvent(final Matcher<Notification> matcher, final int times, final long timeout, final TimeUnit timeUnit) throws InterruptedException {
         synchronized (notifications){
             if(hasMatchingNotification(matcher)){
                 return;
             }
 
-            currentWait = new AwaitContext(matcher,times,timeout);
+            currentWait = new AwaitContext(matcher,times,timeUnit.convert(timeout,TimeUnit.MILLISECONDS));
         }
 
         currentWait.await();
@@ -101,6 +103,18 @@ public class TestSubscriber<T> extends Subscriber<T>{
         if(currentWait.didTimeout()){
             fail(matcher,"Timed out waiting for event");
         }
+    }
+
+    public void awaitEvent(final Matcher<Notification> matcher, final int times) throws InterruptedException {
+        awaitEvent(matcher,times,DEFAULT_TIMEOUT,TimeUnit.MILLISECONDS);
+    }
+
+    public void awaitEvent(final Matcher<Notification> matcher,  final long timeout, final TimeUnit timeUnit) throws InterruptedException {
+        awaitEvent(matcher,1,timeout,timeUnit);
+    }
+
+    public void awaitEvent(final Matcher<Notification> matcher) throws InterruptedException {
+        awaitEvent(matcher,1,DEFAULT_TIMEOUT,TimeUnit.MILLISECONDS);
     }
 
     public AssertionChain beginAssertionChain(){
@@ -196,6 +210,10 @@ public class TestSubscriber<T> extends Subscriber<T>{
             }
 
             return this;
+        }
+
+        public AssertionChain ignoreUntilEvent(final Matcher<Notification> matcher){
+            return ignoreUntilEvent(matcher,1);
         }
     }
 
