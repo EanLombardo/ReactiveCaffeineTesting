@@ -76,17 +76,23 @@ public class TestSubscriber<T> extends Subscriber<T>{
         fail(expected,but,null);
     }
 
-    private void fail(final SelfDescribing expected, final String but, final Notification<T> event){
+    private void fail(final String expected, final String but, final Notification<T> event){
         final Description description = new StringDescription();
         description
                 .appendText("\n   Expected: ")
-                .appendDescriptionOf(expected)
+                .appendText(expected)
                 .appendText("\n        but: ")
                 .appendText(but)
                 .appendText("\nevent chain: ");
         describeEventChain(description, event);
 
         Assert.fail(description.toString());
+    }
+
+    private void fail(final SelfDescribing expected, final String but, final Notification<T> event){
+        final Description description = new StringDescription();
+        expected.describeTo(description);
+        fail(expected.toString(),but,event);
     }
 
     public void awaitEvent(final Matcher<Notification> matcher, final int times, final long timeout, final TimeUnit timeUnit) throws InterruptedException {
@@ -124,6 +130,18 @@ public class TestSubscriber<T> extends Subscriber<T>{
     public void assertHasEvent(final Matcher<Notification> matcher){
         if(!hasMatchingNotification(matcher)){
             fail(matcher,"There was no matching event in the event chain");
+        }
+    }
+
+    public void assertDoesNotHaveEvent(final Matcher<Notification> matcher){
+        for(final Notification<T> notification : notifications){
+            if(matcher.matches(notification)){
+                final Description description = new StringDescription();
+                description.appendText("no event matching: ");
+                description.appendDescriptionOf(matcher);
+
+                fail(description.toString(),"There was a matching event",notification);
+            }
         }
     }
 

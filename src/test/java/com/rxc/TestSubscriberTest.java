@@ -38,6 +38,30 @@ public class TestSubscriberTest {
     }
 
     @Test
+    public void doesNotHaveEvent() throws Exception {
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        Observable.just("hello").subscribe(testSubscriber);
+
+        testSubscriber.assertDoesNotHaveEvent(isValue("glork"));
+    }
+
+    @Test
+    public void doesNotHaveEvent_matches() throws Exception {
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        Observable.just("hello","glork").subscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable(){
+            @Override
+            public void run() {
+                testSubscriber.assertDoesNotHaveEvent(isValue("hello"));
+            }
+        }, hasMessageThat(containsString("There was a matching event")));
+    }
+
+
+    @Test
     public void awaitEvent_timesOut(){
         final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
 
