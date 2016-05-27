@@ -234,4 +234,45 @@ public class TestSubscriberTest {
             }
         }, hasMessageThat(containsString("There was no such event")));
     }
+
+    @Test
+    public void assertNoRemainingEvents(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .error(new Exception("There is no spoon"))
+                .subscribe(testSubscriber);
+
+        testSubscriber.beginAssertionChain()
+                      .ignoreUntilEvent(isError(Exception.class))
+                      .assertNoRemainingEvents();
+
+    }
+
+    @Test
+    public void assertNoRemainingEvents_fails(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .emit("boom")
+                .build()
+                .subscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                testSubscriber.beginAssertionChain()
+                        .ignoreUntilEvent(isValue("spoon"))
+                        .assertNoRemainingEvents();
+            }
+        },hasMessageThat(containsString("here were remaining events")));
+    }
 }

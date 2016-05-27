@@ -328,6 +328,14 @@ public class TestSubscriber<T> extends Subscriber<T>{
         public AssertionChain ignoreUntilEvent(final Matcher<Notification> matcher){
             return ignoreUntilEvent(matcher,1);
         }
+
+        public AssertionChain assertNoRemainingEvents(){
+            if(iterator.hasNext()){
+                fail("No remaining events","There were remaining events", iterator.next());
+            }
+
+            return this;
+        }
     }
 
 }
