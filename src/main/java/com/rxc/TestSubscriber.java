@@ -203,6 +203,18 @@ public class TestSubscriber<T> extends Subscriber<T>{
         }
     }
 
+    public void assertWellBehaved(){
+        for (int i = 0; i < notifications.size(); i++) {
+            final Notification<T> notification = notifications.get(i);
+
+            if(notification.isOnError() && i != (notifications.size() - 1)){
+                fail("A well behaved Observable","Received more events after an onError event",notifications.get(i));
+            } else if(notification.isOnCompleted() && i != (notifications.size() - 1)){
+                fail("A well behaved Observable","Received more events after an onCompleted event",notifications.get(i));
+            }
+        }
+    }
+
     private final class AwaitContext{
         private final Matcher<Notification> matcher;
         private final long timeout;

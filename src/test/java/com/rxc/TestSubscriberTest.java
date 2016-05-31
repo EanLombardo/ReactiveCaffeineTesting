@@ -275,4 +275,64 @@ public class TestSubscriberTest {
             }
         },hasMessageThat(containsString("here were remaining events")));
     }
+
+    @Test
+    public void assertWellBehaved(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new ObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .emit("spoon")
+                .emit("boom")
+                .complete()
+                .unsafeSubscribe(testSubscriber);
+
+        testSubscriber.assertWellBehaved();
+    }
+
+    @Test
+    public void assertWellBehaved_fails_moreEventsAfterCompletion(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new UnsafeObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .complete()
+                .emit("spoon")
+                .emit("boom")
+                .build()
+                .unsafeSubscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                testSubscriber.assertWellBehaved();
+            }
+        },hasMessageThat(containsString("Received more events after an onCompleted event")));
+    }
+
+    @Test
+    public void assertWellBehaved_fails_moreEventsAfterError(){
+        final TestSubscriber<String> testSubscriber = new TestSubscriber<>();
+
+        new UnsafeObservableBuilder<String>()
+                .emit("Glork")
+                .emit("flork")
+                .emit("fork")
+                .error(new Exception())
+                .emit("spoon")
+                .emit("boom")
+                .build()
+                .unsafeSubscribe(testSubscriber);
+
+        assertThrows(new ThrowingRunnable() {
+            @Override
+            public void run() throws Throwable {
+                testSubscriber.assertWellBehaved();
+            }
+        },hasMessageThat(containsString("Received more events after an onError event")));
+    }
 }
