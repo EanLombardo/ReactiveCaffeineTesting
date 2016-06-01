@@ -18,9 +18,5 @@
         <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="ReactiveCaffeineTesting_main" target="1.7" />
-      <module name="ReactiveCaffeineTesting_test" target="1.7" />
-    </bytecodeTargetLevel>
   </component>
 </project>

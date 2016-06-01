@@ -1,6 +1,12 @@
+### Intellij
+*.iws
+workspace.xml
+tasks.xml
+
 ### Gradle template
 .gradle
 build/
+.idea/libraries
 
 # Ignore Gradle GUI config
 gradle-app.setting
