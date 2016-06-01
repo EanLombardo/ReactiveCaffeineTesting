@@ -244,7 +244,7 @@ public class TestSubscriber<T> extends Subscriber<T>{
     }
 
     /**
-     * <p>A fluent class used to walk the chain of events received by a {@link TestSubscriber} and make assertions against each event in the order received<</p>
+     * <p>A fluent class used to walk the chain of events received by a {@link TestSubscriber} and make assertions against each event in the order received</p>
      * <p>AssertionChain does not make assertions against events as they come in, instead it asserts against the events received by the {@link TestSubscriber} when
      * {@link TestSubscriber#beginAssertionChain()} was called. This means in multi threaded situations you will likely have to use {@link TestSubscriber#awaitEvent(Matcher)}
      * to wait for the {@link TestSubscriber} to receive the events that you want to assert against.</p>

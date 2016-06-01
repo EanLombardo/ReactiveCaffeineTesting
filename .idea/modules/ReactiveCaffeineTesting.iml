@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module external.linked.project.id="ReactiveCaffeineTesting" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="com.rxc" external.system.module.version="0.0.1WIP" type="JAVA_MODULE" version="4">
+<module external.linked.project.id="ReactiveCaffeineTesting" external.linked.project.path="$MODULE_DIR$/../.." external.root.project.path="$MODULE_DIR$/../.." external.system.id="GRADLE" external.system.module.group="com.rxc" external.system.module.version="0.0.1" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/../../build/classes/main" />
     <output-test url="file://$MODULE_DIR$/../../build/classes/test" />
@@ -15,8 +15,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Gradle: io.reactivex:rxjava:1.0.14" level="project" />
-    <orderEntry type="library" name="Gradle: reactive-caffeine:reactive-caffeine:1.0.0" level="project" />
-    <orderEntry type="library" name="Gradle: junit:junit:4.11" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="library" name="Gradle: junit:junit:4.11" level="project" />
+    <orderEntry type="library" name="Gradle: reactive-caffeine:reactive-caffeine:1.0.0" level="project" />
   </component>
 </module>
