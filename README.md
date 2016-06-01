@@ -1,4 +1,5 @@
 # ReactiveCaffeineTesting
+[![Build Status](https://travis-ci.org/EanLombardo/ReactiveCaffeine.svg?branch=master)](https://travis-ci.org/EanLombardo/ReactiveCaffeine)
 
 ReactiveCaffeineTesting that aims to make complex Observables easy to test while and provide detailed failure reports when tests fail.
 
