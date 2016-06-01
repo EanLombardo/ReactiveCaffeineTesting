@@ -1,5 +1,6 @@
 # ReactiveCaffeineTesting
-[![Build Status](https://travis-ci.org/EanLombardo/ReactiveCaffeine.svg?branch=master)](https://travis-ci.org/EanLombardo/ReactiveCaffeine)
+[![Build Status](https://travis-ci.org/EanLombardo/ReactiveCaffeineTesting.svg?branch=master)](https://travis-ci.org/EanLombardo/ReactiveCaffeineTesting)[ ![Download](https://api.bintray.com/packages/eanlombardo/maven/ReactiveCaffeineTesting/images/download.svg) ](https://bintray.com/eanlombardo/maven/ReactiveCaffeineTesting/_latestVersion)
+
 
 ReactiveCaffeineTesting that aims to make complex Observables easy to test while and provide detailed failure reports when tests fail.
 
