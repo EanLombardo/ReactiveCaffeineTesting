@@ -4,6 +4,8 @@
 
 ReactiveCaffeineTesting that aims to make complex Observables easy to test while and provide detailed failure reports when tests fail.
 
+ReactiveCaffeineTesting is code meant for testing purposes, for production code you should take a look at [ReactiveCaffeine](https://github.com/EanLombardo/ReactiveCaffeine)
+
 For more information on using ReactiveCaffeineTesting see the [Javadoc](http://eanlombardo.github.io/ReactiveCaffeineTesting/) or the [Wiki](https://github.com/EanLombardo/ReactiveCaffeineTesting/wiki)
 
 ## Example
